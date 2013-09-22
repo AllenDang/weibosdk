@@ -24,12 +24,12 @@ func GetAccessToken(appKey, appSecret, redirectUrl, code string) (*AccessToken, 
   v.Add("redirect_uri", redirectUrl)
   v.Add("code", code)
 
-  reqUrl := UrlOAuth2 + "/access_token?" + v.Encode()
+  reqUrl := UrlOAuth2 + "/access_token"
 
   var err error
   var resp *http.Response
 
-  if resp, err = http.Get(reqUrl); err == nil && resp.StatusCode == http.StatusOK {
+  if resp, err = http.PostForm(reqUrl, v); err == nil && resp.StatusCode == http.StatusOK {
     defer resp.Body.Close()
 
     var accessToken AccessToken
