@@ -2,9 +2,6 @@ package weibosdk
 
 import (
   "encoding/json"
-  "fmt"
-  "io/ioutil"
-  "net/http"
   "net/url"
 )
 
@@ -17,21 +14,10 @@ func GetUserShow(accessToken, uid string) (*User, error) {
 
   var err error
 
-  if resp, err := http.Get(reqUrl); err == nil {
-    defer resp.Body.Close()
-
-    if content, err := ioutil.ReadAll(resp.Body); err == nil {
-      //先测试返回的是否是ReturnError
-      var returnError ReturnError
-      if err = json.Unmarshal(content, &returnError); err == nil && returnError.Error_code != 0 {
-        return nil, fmt.Errorf("Request %s failed with error_code %d. Error message is '%s'.",
-          returnError.Request, returnError.Error_code, returnError.Error)
-      }
-
-      var user User
-      if err = json.Unmarshal(content, &user); err == nil {
-        return &user, nil
-      }
+  if resp, err := weiboGet(reqUrl); err == nil {
+    var user User
+    if err = json.Unmarshal(resp, &user); err == nil {
+      return &user, nil
     }
   }
 
@@ -46,21 +32,10 @@ func GetEmail(accessToken string) (string, error) {
 
   var err error
 
-  if resp, err := http.Get(reqUrl); err == nil {
-    defer resp.Body.Close()
-
-    if content, err := ioutil.ReadAll(resp.Body); err == nil {
-      //先测试返回的是否是ReturnError
-      var returnError ReturnError
-      if err = json.Unmarshal(content, &returnError); err == nil && returnError.Error_code != 0 {
-        return "", fmt.Errorf("Request %s failed with error_code %d. Error message is '%s'.",
-          returnError.Request, returnError.Error_code, returnError.Error)
-      }
-
-      if email, err := extractDataByRegex(string(content),
-        `"email":"(.*?)"`); err == nil {
-        return email, nil
-      }
+  if resp, err := weiboGet(reqUrl); err == nil {
+    if email, err := extractDataByRegex(string(resp),
+      `"email":"(.*?)"`); err == nil {
+      return email, nil
     }
   }
 
