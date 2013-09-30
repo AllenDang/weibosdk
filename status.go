@@ -1,7 +1,6 @@
 package weibosdk
 
 import (
-  "github.com/golang/glog"
   "net/url"
 )
 
@@ -14,8 +13,7 @@ func Update(accessToken, status string) error {
 
   var err error
 
-  if resp, err := weiboPost(reqUrl, v); err == nil {
-    glog.Infoln(resp)
+  if _, err := weiboPost(reqUrl, v); err == nil {
     return nil
   }
 
